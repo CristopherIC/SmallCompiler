@@ -5,7 +5,6 @@ literals = ['=', '+', '-', '*', '/', '(', ')', ';']
 keywords = {
     'int': 'INT',
     'float': 'FLOAT',
-    'string': 'STRING',
     'print': 'PRINT'
 }
 
@@ -23,10 +22,6 @@ t_FNUMBER = r'((\d*\.\d+)(E[\+-]?\d+)?|([1-9]\d*E[\+-]?\d+))'
 def t_ID(t):
     r'[a-zA-Z_][\w]*'
     t.type = keywords.get(t.value, 'ID')
-    return t
-
-def t_STRING(t):
-    r'\".*?\"'
     return t
 
 def t_newline(t):

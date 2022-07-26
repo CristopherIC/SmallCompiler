@@ -39,7 +39,7 @@ def p_block(p):
     if len(p) > 2:
         p[0] = Node('block', [p[1], p[2]])
         p[1].parent = p[0]
-        p[2].parent = p[0]
+        p[0].addChilds(p[2].childs)
     else:
        p[0] = p[1]
 
@@ -82,10 +82,8 @@ def p_basicstmt_asg(p):
     '''
     basicstmt : ID '=' num_expr                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     
     '''
-    p[1] = Node(p[1])
-    p[3] = Node(p[3])
-    p[0] = Node('asg', [p[1], p[3]])
-    p[1].parent = p[0]
+    p[0] = Node('asg', [Node(p[1],None,p[0]), p[3]])
+
     p[3].parent = p[0]
 
 #--- num_expr ---
@@ -109,21 +107,8 @@ def p_num_expr_ops(p):
              | num_expr '/' num_expr
              | num_expr '^' num_expr
     '''
-
-    p[1] = Node(p[1])
-    p[3] = Node(p[3])
-
-    if p[2] == '+':
-        p[0] = Node('+', [[p[1], p[3]]])
-    elif p[2] == '-':
-        p[0] = Node('-', [[p[1], p[3]]])
-    elif p[2] == '*':
-        p[0] = Node('*', [[p[1], p[3]]])
-    elif p[2] == '/':
-        p[0] = Node('/', [[p[1], p[3]]])
-    elif p[2] == '^':
-        p[0] = Node('^', [[p[1], p[3]]])
-
+    p[0] = Node(p[2], [p[1], p[3]])
+  
     p[1].parent = p[0]
     p[3].parent = p[0]
 
@@ -138,19 +123,19 @@ def p_number_int(p):
     '''
     num_val : INUMBER
     '''
-    p[0] = p[1]
+    p[0] = Node(p[1])
 
 def p_number_float(p):
     '''
     num_val : FNUMBER
     '''
-    p[0] = p[1]
+    p[0] = Node(p[1])
 
 def p_number_id(p):
     '''
     num_val : ID
     '''
-    p[0] = p[1]
+    p[0] = Node(p[1])
 
 #--- printstmt ---
 def p_printstmt(p):
