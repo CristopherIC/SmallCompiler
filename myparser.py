@@ -39,7 +39,7 @@ def p_block(p):
     if len(p) > 2:
         p[0] = Node('block', [p[1], p[2]])
         p[1].parent = p[0]
-        p[2].parent = p[0]
+        p[0].addChilds(p[2].childs)
     else:
        p[0] = p[1]
 
@@ -58,7 +58,7 @@ def p_basicstmt_dcl(p):
     '''
     p[1] = Node(p[1])
     p[2] = Node(p[2])
-    p[0] = Node('dcl', [p[1], p[2]], None)
+    p[0] = Node('dcl', [p[1], p[2]])
     p[1].parent = p[0]
     p[2].parent = p[0]
     
@@ -67,26 +67,77 @@ def p_basicstmt_dclass(p):
     '''
     basicstmt : INT ID '=' num_expr
               | FLOAT ID '=' num_expr
+              | BOOLEAN ID '=' bool_expr
     '''
+
     p[1] = Node(p[1])
     p[2] = Node(p[2])
     dclNode = Node('dcl', [p[1], p[2]])
     p[1].parent = dclNode
     p[2].parent = dclNode
     
-    p[4] = Node(p[4])
     p[0] = Node('asg', [dclNode, p[4]])
     p[4].parent = p[0]
 
 def p_basicstmt_asg(p):
     '''
-    basicstmt : ID '=' num_expr                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     
+    basicstmt : ID '=' expr                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     
     '''
-    p[1] = Node(p[1])
-    p[3] = Node(p[3])
-    p[0] = Node('asg', [p[1], p[3]])
+    p[0] = Node('asg', [Node(p[1],None,p[0]), p[3]])
+
+    p[3].parent = p[0]
+
+#--- expr ---
+def p_expr(p):
+    '''
+    expr : num_expr   
+         | bool_expr                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          
+    '''
+    p[0] = p[1]
+
+#--- bool_expr ---
+def p_bool_expr(p):
+    '''
+    bool_expr : bool_val                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                
+    '''
+    p[0] = p[1]
+
+def p_bool_expr_grp(p):
+    '''
+    bool_expr : '(' bool_expr ')'
+    '''
+    p[0] = p[2]
+
+def p_bool_expr_opt_bool(p):
+    '''
+    bool_expr : bool_expr EQUALS bool_expr
+              | bool_expr NOTEQUALS bool_expr
+    '''
+    p[0] = Node(p[2], [p[1], p[3]])
     p[1].parent = p[0]
     p[3].parent = p[0]
+
+def p_bool_expr_comp(p):
+    '''
+    bool_expr : num_expr GTEEQUALS num_expr
+              | num_expr LESSEQUALS num_expr
+              | num_expr EQUALS num_expr
+              | num_expr NOTEQUALS num_expr
+              | num_expr '<' num_expr
+              | num_expr '>' num_expr
+    '''
+    p[0] = Node(p[2], [p[1], p[3]])
+    p[1].parent = p[0]
+    p[3].parent = p[0]
+
+# --- bool_val ---
+def p_bool_val(p):
+    '''
+    bool_val : TRUE
+             | FALSE
+             | ID
+    '''
+    p[0] = Node(p[1])
 
 #--- num_expr ---
 def p_num_expr(p):
@@ -109,21 +160,8 @@ def p_num_expr_ops(p):
              | num_expr '/' num_expr
              | num_expr '^' num_expr
     '''
-
-    p[1] = Node(p[1])
-    p[3] = Node(p[3])
-
-    if p[2] == '+':
-        p[0] = Node('+', [[p[1], p[3]]])
-    elif p[2] == '-':
-        p[0] = Node('-', [[p[1], p[3]]])
-    elif p[2] == '*':
-        p[0] = Node('*', [[p[1], p[3]]])
-    elif p[2] == '/':
-        p[0] = Node('/', [[p[1], p[3]]])
-    elif p[2] == '^':
-        p[0] = Node('^', [[p[1], p[3]]])
-
+    p[0] = Node(p[2], [p[1], p[3]])
+  
     p[1].parent = p[0]
     p[3].parent = p[0]
 
@@ -131,26 +169,17 @@ def p_num_expr_uminus(p):
     '''
     num_expr : '-' num_expr %prec UMINUS
     '''
-    p[0] = -p[2]
+    p[0] = Node(p[1], [p[2]])
+    p[2].parent = p[0]
 
-#--- number ---
-def p_number_int(p):
+#--- num_val ---
+def p_num_val(p):
     '''
     num_val : INUMBER
+            | FNUMBER
+            | ID
     '''
-    p[0] = p[1]
-
-def p_number_float(p):
-    '''
-    num_val : FNUMBER
-    '''
-    p[0] = p[1]
-
-def p_number_id(p):
-    '''
-    num_val : ID
-    '''
-    p[0] = p[1]
+    p[0] = Node(p[1])
 
 #--- printstmt ---
 def p_printstmt(p):
