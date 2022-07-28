@@ -5,11 +5,10 @@ literals = ['=', '+', '-', '*', '/', '^', '(', ')', '{', '}', '<', '>', ';']
 keywords = {
     'int': 'INT',
     'float': 'FLOAT',
-    'print': 'PRINT',
     'boolean' : 'BOOLEAN',
     'true': 'TRUE',
     'false': 'FALSE',
-    #'if' : 'IF'
+    'if' : 'IF'
 }
 
 tokens = list(keywords.values()) + [

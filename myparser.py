@@ -9,10 +9,6 @@ class Node:
         self.type = type
         self.childs = childs
         self.parent = parent
-
-    def addChilds(self, nodes):
-        for node in nodes:
-            self.childs.append(node)
     
 precedence = (
     ('left', '+', '-'),
@@ -39,22 +35,22 @@ def p_block(p):
     if len(p) > 2:
         p[0] = Node('block', [p[1], p[2]])
         p[1].parent = p[0]
-        p[0].addChilds(p[2].childs)
+        p[2].parent = p[0]
     else:
        p[0] = p[1]
 
 def p_statements(p):
     '''
-    statements : basicstmt ';' 
-               | printstmt ';'   
+    statements : basic_stmt ';' 
+               | if_stmt 
     '''
     p[0] = p[1]
 
-#---- basicstmt ----
+#---- basic_stmt ----
 def p_basicstmt_dcl(p):
     '''
-    basicstmt : INT ID
-              | FLOAT ID
+    basic_stmt : INT ID
+               | FLOAT ID
     '''
     p[1] = Node(p[1])
     p[2] = Node(p[2])
@@ -65,9 +61,9 @@ def p_basicstmt_dcl(p):
 
 def p_basicstmt_dclass(p):
     '''
-    basicstmt : INT ID '=' num_expr
-              | FLOAT ID '=' num_expr
-              | BOOLEAN ID '=' bool_expr
+    basic_stmt : INT ID '=' num_expr
+               | FLOAT ID '=' num_expr
+               | BOOLEAN ID '=' bool_expr
     '''
 
     p[1] = Node(p[1])
@@ -81,7 +77,7 @@ def p_basicstmt_dclass(p):
 
 def p_basicstmt_asg(p):
     '''
-    basicstmt : ID '=' expr                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     
+    basic_stmt : ID '=' expr                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     
     '''
     p[0] = Node('asg', [Node(p[1],None,p[0]), p[3]])
 
@@ -110,8 +106,8 @@ def p_bool_expr_grp(p):
 
 def p_bool_expr_opt_bool(p):
     '''
-    bool_expr : bool_expr EQUALS bool_expr
-              | bool_expr NOTEQUALS bool_expr
+    bool_expr : bool_expr EQUALS expr
+              | bool_expr NOTEQUALS expr
     '''
     p[0] = Node(p[2], [p[1], p[3]])
     p[1].parent = p[0]
@@ -181,17 +177,14 @@ def p_num_val(p):
     '''
     p[0] = Node(p[1])
 
-#--- printstmt ---
-def p_printstmt(p):
+#--- if_stmt ---
+def p_if_stmt(p):
     '''
-    printstmt : PRINT '(' print_expr ')'
+    if_stmt : IF '(' bool_expr ')' '{' block '}'
     '''
-
-def p_print_expr(p):
-    #Agregar el resto de casos luego
-    '''
-    print_expr : num_expr
-    '''
+    p[0] = Node('if', [p[3], p[6]])
+    p[3].parent = p[0]
+    p[6].parent = p[0]
 
 # ----- -----
 def p_error(p):
@@ -200,21 +193,23 @@ def p_error(p):
     else:
         print("Syntax error at EOF")
 
-yacc.yacc()
-
 def printChilds(node,level=0):
         print(('\t' * level) + node.type)
         if node.childs:
             for i in node.childs:
              printChilds(i, level+1)
 
-while 1:
-    try:
-        s = input('> ')
-    except EOFError:
-        break
-    if not s:
-        continue
-    root = yacc.parse(s)
-    printChilds(root)
-    
+yacc.yacc()
+
+#while 1:
+#    try:
+#        s = input('> ')
+#    except EOFError:
+#        break
+#    if not s:
+#        continue
+#    root = yacc.parse(s)
+#    printChilds(root)
+
+root = yacc.parse(open("test.txt").read())
+printChilds(root)
