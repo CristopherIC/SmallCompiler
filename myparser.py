@@ -76,6 +76,7 @@ def p_basicstmt_dclass(p):
     
     p[0] = Node('asg', [dclNode, p[4]])
     p[4].parent = p[0]
+    dclNode.parent = p[0]
 
 def p_basicstmt_asg(p):
     '''

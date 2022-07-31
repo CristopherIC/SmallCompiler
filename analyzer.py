@@ -71,7 +71,8 @@ def analyzer(r):
                 r.childs[1]=parseNode
             elif r.childs[1].parentType != correctType:
                 sys.exit(RED + "Variables de tipo " + r.childs[1].parentType + " no pueden ser convertidas a " + correctType + COLOR_OFF)  
-        #elif correctType == "boolean":
+        elif correctType == "boolean":
+            treeBoolTypeCheck(r.childs[1])
         checkChildren = False
         
     if r.childs and checkChildren:
@@ -122,7 +123,8 @@ def treeNumTypeCheck(node):
         elif(re.fullmatch(r'((\d*\.\d+)(E[\+-]?\d+)?|([1-9]\d*E[\+-]?\d+))', node.type)):
             node.parentType = "float"
         else:
-            if((node.type[0] == "-" and not isDeclared(node,node.type[1:])) or (node.type[0] != "-" and not isDeclared(node,node.type))):
+            if not isDeclared(node,node.type):
+                #print(node.type)
                 sys.exit(RED + "La variable " + node.type + " no ha sido declarada en el scope" + COLOR_OFF)  
             if(node.type[0]=="-"):
                 varType = getVarType(node,node.type[1:])
@@ -131,6 +133,33 @@ def treeNumTypeCheck(node):
             if varType == "boolean":
                 sys.exit(RED + "No se pueden usar variables booleanas en operaciones numericas" + COLOR_OFF)
             node.parentType = varType
+
+def treeBoolTypeCheck(node):
+    if not node.childs:
+        if node.type != "true" and node.type != "false":
+            if not isDeclared(node, node.type):
+                sys.exit(RED + "La variable " + node.type + " no está declarada en el scope." + COLOR_OFF)
+            varType=getVarType(node,node.type)
+            if varType != "boolean":
+                sys.exit(RED + "No es posible convertir" + varType + " a boolean." + COLOR_OFF)
+    elif node.type in ["==","!="]:
+        if(node.childs[0].type in ["+","-","/","*","^"] or re.match(r'-?\d+([uU]|[lL]|[uU][lL]|[lL][uU])?', node.childs[0].type)):
+            treeNumTypeCheck(node.childs[0])
+            treeNumTypeCheck(node.childs[1])
+        elif(node.childs[0].type in ["==","!=","<",">",">=","<=","true","false"]):
+            treeNumTypeCheck(node.childs[0])
+            treeNumTypeCheck(node.childs[1])
+        else:
+            child0type=getVarType(node,node.childs[0].type)
+            if child0type == "float" or child0type == "int":
+                treeNumTypeCheck(node.childs[1])
+            elif child0type == "boolean":
+                treeBoolTypeCheck(node.childs[1])
+            else:
+                sys.exit(RED + "La variable " + node.childs[0].type + " ya a sido declarada en el scope" + COLOR_OFF)
+    elif node.type in ["<",">","<=",">="]:
+        treeNumTypeCheck(node.childs[0])
+        treeNumTypeCheck(node.childs[1])
 
 setVariables(root)
 analyzer(root)
