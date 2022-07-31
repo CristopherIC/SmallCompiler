@@ -106,7 +106,7 @@ def treeNumTypeCheck(node):
         for child in node.childs:
             treeNumTypeCheck(child)
         if node.childs[0].parentType == node.childs[1].parentType:
-            node.parenType = node.childs[0].parentType
+            node.parentType = node.childs[0].parentType
         else:
             for i in range(len(node.childs)):
                 if node.childs[i].parentType == "int":
@@ -122,7 +122,7 @@ def treeNumTypeCheck(node):
         elif(re.fullmatch(r'((\d*\.\d+)(E[\+-]?\d+)?|([1-9]\d*E[\+-]?\d+))', node.type)):
             node.parentType = "float"
         else:
-            if((node.type[0]=="-" and not isDeclared(node,node.type[1:])) or (node.type[0] != "-" and not isDeclared(node,node.type))):
+            if((node.type[0] == "-" and not isDeclared(node,node.type[1:])) or (node.type[0] != "-" and not isDeclared(node,node.type))):
                 sys.exit(RED + "La variable " + node.type + " no ha sido declarada en el scope" + COLOR_OFF)  
             if(node.type[0]=="-"):
                 varType = getVarType(node,node.type[1:])

@@ -167,8 +167,10 @@ def p_num_expr_uminus(p):
     '''
     num_expr : '-' num_expr %prec UMINUS
     '''
-    p[0] = Node(p[1], [p[2]])
+    nodeEmpty = Node('0')
+    p[0] = Node(p[1], [nodeEmpty, p[2]])
     p[2].parent = p[0]
+    nodeEmpty.parent = p[0]
 
 #--- num_val ---
 def p_num_val(p):
