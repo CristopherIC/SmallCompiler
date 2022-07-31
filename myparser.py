@@ -5,10 +5,11 @@ tokens = mylexer.tokens
 
 class Node:
 
-    def __init__(self, type, childs=[], parent=None):
+    def __init__(self, type, childs = [], parent = None, parentType = None):
         self.type = type
         self.childs = childs
         self.parent = parent
+        self.parentType = parentType
     
 precedence = (
     ('left', '+', '-'),
@@ -51,6 +52,7 @@ def p_basicstmt_dcl(p):
     '''
     basic_stmt : INT ID
                | FLOAT ID
+               | BOOLEAN ID
     '''
     p[1] = Node(p[1])
     p[2] = Node(p[2])
