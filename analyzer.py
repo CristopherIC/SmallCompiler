@@ -68,13 +68,18 @@ def analyzer(r):
                 parseNode = Node('intToFloat', parentType = "float")
                 r.childs[1].parent = parseNode
                 parseNode.childs=[r.childs[1]]
-                r.childs[1]=parseNode
+                r.childs[1] = parseNode
             elif r.childs[1].parentType != correctType:
                 sys.exit(RED + "Variables de tipo " + r.childs[1].parentType + " no pueden ser convertidas a " + correctType + COLOR_OFF)  
         elif correctType == "boolean":
             treeBoolTypeCheck(r.childs[1])
         checkChildren = False
-        
+    elif(r.type in ["+","-","/","*","^"] or re.match(r'-?\d+([uU]|[lL]|[uU][lL]|[lL][uU])?',r.type)):
+        treeNumTypeCheck(r)
+        checkChildren = False
+    elif(r.type in ["==","!=","<",">",">=","<=","true","false"]):
+        treeBoolTypeCheck(r)
+        checkChildren = False
     if r.childs and checkChildren:
         for child in r.childs:
             analyzer(child)
@@ -150,7 +155,7 @@ def treeBoolTypeCheck(node):
             treeNumTypeCheck(node.childs[0])
             treeNumTypeCheck(node.childs[1])
         else:
-            child0type=getVarType(node,node.childs[0].type)
+            child0type = getVarType(node,node.childs[0].type)
             if child0type == "float" or child0type == "int":
                 treeNumTypeCheck(node.childs[1])
             elif child0type == "boolean":
