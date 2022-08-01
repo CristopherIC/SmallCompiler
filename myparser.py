@@ -217,4 +217,4 @@ yacc.yacc()
 #    printChilds(root)
 
 root = yacc.parse(open("test.txt").read())
-printChilds(root)
+#printChilds(root)

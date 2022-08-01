@@ -1,0 +1,17 @@
+intdcl(a)
+a := 1
+intdcl(b)
+b := 3
+intdcl(c)
+c := a
+t1 := c - 1
+(t1 > 3) IFGOTO L1
+GOTO L2
+
+L1
+c := 2
+GOTO L3
+
+L2
+
+L3

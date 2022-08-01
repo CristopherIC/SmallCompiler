@@ -4,6 +4,7 @@ COLOR_OFF = '\033[0m'
 import re
 import sys
 from myparser import Node, root, printChilds
+from tac import tacFile
 
 variables={}
 
@@ -167,6 +168,8 @@ def treeBoolTypeCheck(node):
         treeNumTypeCheck(node.childs[1])
 
 setVariables(root)
+printChilds(root)
 analyzer(root)
 print("-----------")
 printChilds(root)
+tacFile(root)
